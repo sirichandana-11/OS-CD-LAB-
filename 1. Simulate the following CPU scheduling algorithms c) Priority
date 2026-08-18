@@ -1,0 +1,113 @@
+#include <stdio.h>
+
+int main()
+{
+    int n, i, j;
+    int AT[20], BT[20], TAT[20], WT[20], CT[20];
+    int Pr[20];
+    char P[20];
+
+    int currenttime = 0;
+    int stat = 0, swt = 0;
+    float atat, awt;
+
+    printf("Enter no of processes: ");
+    scanf("%d", &n);
+
+    printf("Enter processor names: ");
+    for(i = 0; i < n; i++)
+    {
+        scanf(" %c", &P[i]);
+    }
+
+    printf("Enter arrival times: ");
+    for(i = 0; i < n; i++)
+    {
+        scanf("%d", &AT[i]);
+    }
+
+    printf("Enter burst times: ");
+    for(i = 0; i < n; i++)
+    {
+        scanf("%d", &BT[i]);
+    }
+
+    printf("Enter priorities: ");
+    for(i = 0; i < n; i++)
+    {
+        scanf("%d", &Pr[i]);
+    }
+
+    /* Sort according to priority */
+    for(i = 0; i < n - 1; i++)
+    {
+        for(j = i + 1; j < n; j++)
+        {
+            if(Pr[i] > Pr[j])
+            {
+                int temp;
+                char ch;
+
+                ch = P[i];
+                P[i] = P[j];
+                P[j] = ch;
+
+                temp = Pr[i];
+                Pr[i] = Pr[j];
+                Pr[j] = temp;
+
+                temp = BT[i];
+                BT[i] = BT[j];
+                BT[j] = temp;
+
+                temp = AT[i];
+                AT[i] = AT[j];
+                AT[j] = temp;
+            }
+        }
+    }
+
+    /* Calculate CT, TAT and WT */
+    for(i = 0; i < n; i++)
+    {
+        if(currenttime < AT[i])
+        {
+            currenttime = AT[i];
+        }
+
+        CT[i] = currenttime + BT[i];
+        currenttime = CT[i];
+
+        TAT[i] = CT[i] - AT[i];
+        WT[i] = TAT[i] - BT[i];
+
+        stat += TAT[i];
+        swt += WT[i];
+    }
+
+    atat = (float)stat / n;
+    awt = (float)swt / n;
+
+    printf("\nProcess\tAT\tBT\tPr\tCT\tTAT\tWT\n");
+
+    for(i = 0; i < n; i++)
+    {
+        printf("%c\t%d\t%d\t%d\t%d\t%d\t%d\n",
+               P[i], AT[i], BT[i], Pr[i],
+               CT[i], TAT[i], WT[i]);
+    }
+
+    printf("\nOrder of execution: ");
+
+    for(i = 0; i < n; i++)
+    {
+        printf("%c ", P[i]);
+    }
+
+    printf("\n");
+
+    printf("\nAverage Turnaround Time = %.2f", atat);
+    printf("\nAverage Waiting Time = %.2f", awt);
+
+    return 0;
+}
