@@ -1,0 +1,200 @@
+#include <stdio.h>
+#include <string.h>
+
+char str[25], st[25];
+char *temp;
+char ch;
+
+int i, k, n, top = -1;
+int r, c, m;
+
+char t[5][6][10] =
+{
+    { "$",   "$",   "TX",  "TX",  "$",   "$" },
+    { "+TX", "$",   "$",   "$",   "e",   "e" },
+    { "$",   "$",   "FY",  "FY",  "$",   "$" },
+    { "e",   "*FY", "$",   "$",   "e",   "e" },
+    { "$",   "$",   "i",   "(E)", "$",   "$" }
+};
+
+/* Push a symbol onto stack */
+void push(char x)
+{
+    st[++top] = x;
+}
+
+/* Pop a symbol from stack */
+char pop()
+{
+    return st[top--];
+}
+
+int main()
+{
+    printf("Enter the string: ");
+    scanf("%24s", str);
+
+    /* Add end marker $ */
+    n = strlen(str);
+    str[n++] = '$';
+    str[n] = '\0';
+
+    i = 0;
+
+    /* Initialize stack */
+    push('$');
+    push('E');
+
+    printf("\nStack\tInput\t\tAction\n");
+    printf("----------------------------------------\n");
+
+    while (top >= 0)
+    {
+        /* Display stack */
+        for (k = 0; k <= top; k++)
+            printf("%c", st[k]);
+
+        printf("\t");
+
+        /* Display remaining input */
+        for (k = i; k < n; k++)
+            printf("%c", str[k]);
+
+        printf("\t\t");
+
+        /*
+         * If stack top and input symbol are same,
+         * pop the stack and move input pointer.
+         */
+        if (st[top] == str[i])
+        {
+            ch = pop();
+
+            /* End marker matched */
+            if (ch == '$')
+            {
+                i++;
+                printf("Accept\n");
+                break;
+            }
+
+            printf("pop %c", ch);
+            i++;
+        }
+        else
+        {
+            /*
+             * Find row using stack top.
+             */
+            switch (st[top])
+            {
+                case 'E':
+                    r = 0;
+                    break;
+
+                case 'X':
+                    r = 1;
+                    break;
+
+                case 'T':
+                    r = 2;
+                    break;
+
+                case 'Y':
+                    r = 3;
+                    break;
+
+                case 'F':
+                    r = 4;
+                    break;
+
+                default:
+                    printf("Error: Invalid stack symbol\n");
+                    return 0;
+            }
+
+            /*
+             * Find column using current input symbol.
+             */
+            switch (str[i])
+            {
+                case '+':
+                    c = 0;
+                    break;
+
+                case '*':
+                    c = 1;
+                    break;
+
+                case 'i':
+                    c = 2;
+                    break;
+
+                case '(':
+                    c = 3;
+                    break;
+
+                case ')':
+                    c = 4;
+                    break;
+
+                case '$':
+                    c = 5;
+                    break;
+
+                default:
+                    printf("Invalid input symbol\n");
+                    return 0;
+            }
+
+            /*
+             * $ in the parsing table means error.
+             */
+            if (strcmp(t[r][c], "$") == 0)
+            {
+                printf("Error\n");
+                printf("\nString is NOT parsed successfully.\n");
+                return 0;
+            }
+
+            /*
+             * Pop the non-terminal.
+             */
+            ch = pop();
+
+            /*
+             * Get production from parsing table.
+             */
+            temp = t[r][c];
+
+            printf("%c -> %s", ch, temp);
+
+            /*
+             * If production is not epsilon,
+             * push RHS in reverse order.
+             */
+            if (strcmp(temp, "e") != 0)
+            {
+                m = strlen(temp);
+
+                for (k = m - 1; k >= 0; k--)
+                {
+                    push(temp[k]);
+                }
+            }
+        }
+
+        printf("\n");
+    }
+
+    /*
+     * Final result.
+     */
+    if (i == n)
+        printf("\nString is parsed successfully.\n");
+    else
+        printf("\nString is NOT parsed successfully.\n");
+
+    return 0;
+}
+
